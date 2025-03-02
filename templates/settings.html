@@ -1,0 +1,554 @@
+{% extends "layout.html" %}
+
+{% block title %}Ayarlar - Yağ Kaçağı Tespit Sistemi{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h3><i class="fas fa-cog"></i> Sistem Ayarları</h3>
+        <p class="text-muted">Drone, görüntü işleme ve sistem ayarlarını buradan yapılandırabilirsiniz.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Sol Menü -->
+    <div class="col-md-3">
+        <div class="list-group mb-4">
+            <a href="#drone-ayarları" class="list-group-item list-group-item-action active" data-bs-toggle="list">
+                <i class="fas fa-drone"></i> Drone Ayarları
+            </a>
+            <a href="#görüntü-işleme-ayarları" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="fas fa-camera"></i> Görüntü İşleme Ayarları
+            </a>
+            <a href="#sistem-ayarları" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="fas fa-server"></i> Sistem Ayarları
+            </a>
+            <a href="#kullanıcı-ayarları" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="fas fa-user-cog"></i> Kullanıcı Ayarları
+            </a>
+            <a href="#hakkında" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="fas fa-info-circle"></i> Hakkında
+            </a>
+        </div>
+    </div>
+    
+    <!-- Ayarlar İçeriği -->
+    <div class="col-md-9">
+        <div class="tab-content">
+            <!-- Drone Ayarları -->
+            <div class="tab-pane fade show active" id="drone-ayarları">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-drone"></i> Drone Ayarları</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="drone-ayarları-form">
+                            <div class="mb-3">
+                                <label for="varsayılan-bağlantı-adresi" class="form-label">Varsayılan Bağlantı Adresi</label>
+                                <input type="text" class="form-control" id="varsayılan-bağlantı-adresi" value="tcp:127.0.0.1:5760">
+                                <div class="form-text">
+                                    SITL: tcp:127.0.0.1:5760<br>
+                                    USB: /dev/ttyACM0 (Linux) veya COM3 (Windows)<br>
+                                    Telemetri: /dev/ttyUSB0
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="varsayılan-hız" class="form-label">Varsayılan Hız (m/s)</label>
+                                    <input type="number" class="form-control" id="varsayılan-hız" value="5" min="1" max="15">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="varsayılan-yükseklik" class="form-label">Varsayılan Yükseklik (m)</label>
+                                    <input type="number" class="form-control" id="varsayılan-yükseklik" value="30" min="5" max="120">
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="varsayılan-tarama-mesafesi" class="form-label">Varsayılan Tarama Çizgileri Arası Mesafe (m)</label>
+                                    <input type="number" class="form-control" id="varsayılan-tarama-mesafesi" value="50" min="10" max="200">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="konum-doğruluk" class="form-label">Konum Doğruluk Toleransı (m)</label>
+                                    <input type="number" class="form-control" id="konum-doğruluk" value="0.5" min="0.1" max="5" step="0.1">
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Acil Durum Ayarları</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="düşük-pil-rtl" checked>
+                                    <label class="form-check-label" for="düşük-pil-rtl">
+                                        Düşük pil seviyesinde otomatik RTL (Başlangıç noktasına dön)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="bağlantı-kesilince-rtl" checked>
+                                    <label class="form-check-label" for="bağlantı-kesilince-rtl">
+                                        Bağlantı kesildiğinde otomatik RTL
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="düşük-pil-seviyesi" class="form-label">Düşük Pil Seviyesi (%)</label>
+                                    <input type="number" class="form-control" id="düşük-pil-seviyesi" value="20" min="5" max="50">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="bağlantı-zaman-aşımı" class="form-label">Bağlantı Zaman Aşımı (sn)</label>
+                                    <input type="number" class="form-control" id="bağlantı-zaman-aşımı" value="10" min="3" max="30">
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary" id="btn-drone-ayarları-kaydet">
+                                    <i class="fas fa-save"></i> Ayarları Kaydet
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Görüntü İşleme Ayarları -->
+            <div class="tab-pane fade" id="görüntü-işleme-ayarları">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-camera"></i> Görüntü İşleme Ayarları</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="görüntü-işleme-form">
+                            <div class="mb-3">
+                                <label class="form-label">Kamera Kaynağı</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="kamera-kaynak" id="drone-kamera" checked>
+                                    <label class="form-check-label" for="drone-kamera">
+                                        Drone Kamerası
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="kamera-kaynak" id="harici-kamera">
+                                    <label class="form-check-label" for="harici-kamera">
+                                        Harici Kamera
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="görüntü-kalitesi" class="form-label">Görüntü Kalitesi (%)</label>
+                                    <input type="range" class="form-range" id="görüntü-kalitesi" min="10" max="100" step="10" value="80">
+                                    <div class="text-end" id="görüntü-kalitesi-değer">80%</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="görüntü-kayıt-sıklığı" class="form-label">Görüntü Kayıt Sıklığı (sn)</label>
+                                    <input type="number" class="form-control" id="görüntü-kayıt-sıklığı" value="5" min="1" max="60">
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <h6>Yağ Kaçağı Tespit Parametreleri</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="tespit-duyarlılık" class="form-label">Tespit Duyarlılığı</label>
+                                    <input type="range" class="form-range" id="tespit-duyarlılık" min="0" max="1" step="0.1" value="0.7">
+                                    <div class="text-end" id="tespit-duyarlılık-değer">0.7</div>
+                                    <div class="form-text">Yüksek değerler daha fazla yanlış tespit üretebilir.</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="min-alan" class="form-label">Minimum Tespit Alanı (piksel)</label>
+                                    <input type="number" class="form-control" id="min-alan" value="1500" min="100" max="10000">
+                                    <div class="form-text">Küçük değerler daha küçük yağ lekelerini tespit eder.</div>
+                                </div>
+                            </div>
+                            
+                            <h6>Renk Aralığı (HSV)</h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Alt Değer</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">H</span>
+                                        <input type="number" class="form-control" id="alt-h" value="0" min="0" max="180">
+                                        <span class="input-group-text">S</span>
+                                        <input type="number" class="form-control" id="alt-s" value="0" min="0" max="255">
+                                        <span class="input-group-text">V</span>
+                                        <input type="number" class="form-control" id="alt-v" value="100" min="0" max="255">
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Üst Değer</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">H</span>
+                                        <input type="number" class="form-control" id="üst-h" value="180" min="0" max="180">
+                                        <span class="input-group-text">S</span>
+                                        <input type="number" class="form-control" id="üst-s" value="100" min="0" max="255">
+                                        <span class="input-group-text">V</span>
+                                        <input type="number" class="form-control" id="üst-v" value="220" min="0" max="255">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary" id="btn-görüntü-ayarları-kaydet">
+                                    <i class="fas fa-save"></i> Ayarları Kaydet
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sistem Ayarları -->
+            <div class="tab-pane fade" id="sistem-ayarları">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-server"></i> Sistem Ayarları</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="sistem-ayarları-form">
+                            <div class="mb-3">
+                                <label for="sunucu-port" class="form-label">Sunucu Port</label>
+                                <input type="number" class="form-control" id="sunucu-port" value="5000" min="1024" max="65535">
+                                <div class="form-text">Değişiklik yapıldıktan sonra sunucu yeniden başlatılmalıdır.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="veritabanı-yolu" class="form-label">Veritabanı Dosya Yolu</label>
+                                <input type="text" class="form-control" id="veritabanı-yolu" value="tespitler.db">
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="log-seviyesi" class="form-label">Log Seviyesi</label>
+                                    <select class="form-select" id="log-seviyesi">
+                                        <option value="debug">Debug</option>
+                                        <option value="info" selected>Info</option>
+                                        <option value="warning">Warning</option>
+                                        <option value="error">Error</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="log-dosyası" class="form-label">Log Dosyası</label>
+                                    <input type="text" class="form-control" id="log-dosyası" value="uygulama.log">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="tespit-arşiv-süresi" class="form-label">Tespit Arşivleme Süresi (gün)</label>
+                                <input type="number" class="form-control" id="tespit-arşiv-süresi" value="30" min="1" max="365">
+                                <div class="form-text">Belirlenen gün sayısından eski tespitler otomatik olarak arşivlenir.</div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Bildirim Ayarları</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="email-bildirim" checked>
+                                    <label class="form-check-label" for="email-bildirim">
+                                        E-posta bildirimleri
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="sms-bildirim">
+                                    <label class="form-check-label" for="sms-bildirim">
+                                        SMS bildirimleri
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="bildirim-email" class="form-label">Bildirim E-posta Adresi</label>
+                                <input type="email" class="form-control" id="bildirim-email" value="admin@example.com">
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary" id="btn-sistem-ayarları-kaydet">
+                                    <i class="fas fa-save"></i> Ayarları Kaydet
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Kullanıcı Ayarları -->
+            <div class="tab-pane fade" id="kullanıcı-ayarları">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-user-cog"></i> Kullanıcı Ayarları</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="kullanıcı-ayarları-form">
+                            <div class="mb-3">
+                                <label for="kullanıcı-adı" class="form-label">Kullanıcı Adı</label>
+                                <input type="text" class="form-control" id="kullanıcı-adı" value="admin">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="email" class="form-label">E-posta</label>
+                                <input type="email" class="form-control" id="email" value="admin@example.com">
+                            </div>
+                            
+                            <hr>
+                            
+                            <h6>Şifre Değiştir</h6>
+                            
+                            <div class="mb-3">
+                                <label for="mevcut-şifre" class="form-label">Mevcut Şifre</label>
+                                <input type="password" class="form-control" id="mevcut-şifre">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="yeni-şifre" class="form-label">Yeni Şifre</label>
+                                <input type="password" class="form-control" id="yeni-şifre">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="yeni-şifre-tekrar" class="form-label">Yeni Şifre (Tekrar)</label>
+                                <input type="password" class="form-control" id="yeni-şifre-tekrar">
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary" id="btn-kullanıcı-ayarları-kaydet">
+                                    <i class="fas fa-save"></i> Ayarları Kaydet
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hakkında -->
+            <div class="tab-pane fade" id="hakkında">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle"></i> Hakkında</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-drone fa-4x text-primary mb-3"></i>
+                            <h4>Yağ Kaçağı Tespit Sistemi</h4>
+                            <p class="text-muted">Sürüm 1.0.0</p>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header">Sistem Bilgileri</div>
+                                    <div class="card-body">
+                                        <table class="table table-striped">
+                                            <tr>
+                                                <th>Yazılım Sürümü:</th>
+                                                <td>1.0.0</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Python Sürümü:</th>
+                                                <td>3.9.5</td>
+                                            </tr>
+                                            <tr>
+                                                <th>DroneKit Sürümü:</th>
+                                                <td>2.9.2</td>
+                                            </tr>
+                                            <tr>
+                                                <th>OpenCV Sürümü:</th>
+                                                <td>4.8.0.76</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Flask Sürümü:</th>
+                                                <td>2.3.3</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header">İletişim</div>
+                                    <div class="card-body">
+                                        <p><strong>Geliştirici:</strong> Drone Tespit Takımı</p>
+                                        <p><strong>E-posta:</strong> info@dronetespit.com</p>
+                                        <p><strong>Web:</strong> www.dronetespit.com</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="mb-3">
+                            <h6>Kullanılan Teknolojiler</h6>
+                            <ul>
+                                <li>Python</li>
+                                <li>DroneKit (Drone Kontrolü)</li>
+                                <li>OpenCV (Görüntü İşleme)</li>
+                                <li>Flask (Web Arayüzü)</li>
+                                <li>Socket.IO (Gerçek Zamanlı İletişim)</li>
+                                <li>Bootstrap (Arayüz Tasarımı)</li>
+                                <li>Leaflet (Harita İşlemleri)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Bu uygulama açık kaynaklıdır ve sadece eğitim amaçlıdır. Gerçek yağ kaçağı tespitleri için profesyonel ekipman ve yazılımlar kullanılmalıdır.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Görüntü kalitesi slider değerini göster
+        $('#görüntü-kalitesi').on('input', function() {
+            $('#görüntü-kalitesi-değer').text($(this).val() + '%');
+        });
+        
+        // Tespit duyarlılık slider değerini göster
+        $('#tespit-duyarlılık').on('input', function() {
+            $('#tespit-duyarlılık-değer').text($(this).val());
+        });
+        
+        // Drone ayarlarını kaydet
+        $('#btn-drone-ayarları-kaydet').click(function() {
+            const ayarlar = {
+                bağlantı_adresi: $('#varsayılan-bağlantı-adresi').val(),
+                hız: $('#varsayılan-hız').val(),
+                yükseklik: $('#varsayılan-yükseklik').val(),
+                tarama_mesafesi: $('#varsayılan-tarama-mesafesi').val(),
+                konum_doğruluk: $('#konum-doğruluk').val(),
+                düşük_pil_rtl: $('#düşük-pil-rtl').prop('checked'),
+                bağlantı_kesilince_rtl: $('#bağlantı-kesilince-rtl').prop('checked'),
+                düşük_pil_seviyesi: $('#düşük-pil-seviyesi').val(),
+                bağlantı_zaman_aşımı: $('#bağlantı-zaman-aşımı').val()
+            };
+            
+            // AJAX ile ayarları kaydet
+            $.ajax({
+                url: '/api/ayarlar/drone',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(ayarlar),
+                success: function(cevap) {
+                    if (cevap.başarılı) {
+                        alert('Drone ayarları başarıyla kaydedildi!');
+                    } else {
+                        alert('Hata: ' + cevap.mesaj);
+                    }
+                }
+            });
+        });
+        
+        // Görüntü işleme ayarlarını kaydet
+        $('#btn-görüntü-ayarları-kaydet').click(function() {
+            const ayarlar = {
+                kamera_kaynak: $('input[name="kamera-kaynak"]:checked').attr('id'),
+                görüntü_kalitesi: $('#görüntü-kalitesi').val(),
+                görüntü_kayıt_sıklığı: $('#görüntü-kayıt-sıklığı').val(),
+                tespit_duyarlılık: $('#tespit-duyarlılık').val(),
+                min_alan: $('#min-alan').val(),
+                alt_değer: [
+                    parseInt($('#alt-h').val()),
+                    parseInt($('#alt-s').val()),
+                    parseInt($('#alt-v').val())
+                ],
+                üst_değer: [
+                    parseInt($('#üst-h').val()),
+                    parseInt($('#üst-s').val()),
+                    parseInt($('#üst-v').val())
+                ]
+            };
+            
+            // AJAX ile ayarları kaydet
+            $.ajax({
+                url: '/api/ayarlar/görüntü-işleme',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(ayarlar),
+                success: function(cevap) {
+                    if (cevap.başarılı) {
+                        alert('Görüntü işleme ayarları başarıyla kaydedildi!');
+                    } else {
+                        alert('Hata: ' + cevap.mesaj);
+                    }
+                }
+            });
+        });
+        
+        // Sistem ayarlarını kaydet
+        $('#btn-sistem-ayarları-kaydet').click(function() {
+            const ayarlar = {
+                sunucu_port: $('#sunucu-port').val(),
+                veritabanı_yolu: $('#veritabanı-yolu').val(),
+                log_seviyesi: $('#log-seviyesi').val(),
+                log_dosyası: $('#log-dosyası').val(),
+                tespit_arşiv_süresi: $('#tespit-arşiv-süresi').val(),
+                email_bildirim: $('#email-bildirim').prop('checked'),
+                sms_bildirim: $('#sms-bildirim').prop('checked'),
+                bildirim_email: $('#bildirim-email').val()
+            };
+            
+            // AJAX ile ayarları kaydet
+            $.ajax({
+                url: '/api/ayarlar/sistem',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(ayarlar),
+                success: function(cevap) {
+                    if (cevap.başarılı) {
+                        alert('Sistem ayarları başarıyla kaydedildi!');
+                    } else {
+                        alert('Hata: ' + cevap.mesaj);
+                    }
+                }
+            });
+        });
+        
+        // Kullanıcı ayarlarını kaydet
+        $('#btn-kullanıcı-ayarları-kaydet').click(function() {
+            // Şifre kontrolü
+            if ($('#yeni-şifre').val() !== $('#yeni-şifre-tekrar').val()) {
+                alert('Yeni şifreler eşleşmiyor!');
+                return;
+            }
+            
+            const ayarlar = {
+                kullanıcı_adı: $('#kullanıcı-adı').val(),
+                email: $('#email').val(),
+                mevcut_şifre: $('#mevcut-şifre').val(),
+                yeni_şifre: $('#yeni-şifre').val()
+            };
+            
+            // AJAX ile ayarları kaydet
+            $.ajax({
+                url: '/api/ayarlar/kullanıcı',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(ayarlar),
+                success: function(cevap) {
+                    if (cevap.başarılı) {
+                        alert('Kullanıcı ayarları başarıyla kaydedildi!');
+                        // Şifre alanlarını temizle
+                        $('#mevcut-şifre').val('');
+                        $('#yeni-şifre').val('');
+                        $('#yeni-şifre-tekrar').val('');
+                    } else {
+                        alert('Hata: ' + cevap.mesaj);
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

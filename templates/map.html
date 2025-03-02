@@ -1,0 +1,488 @@
+{% extends "layout.html" %}
+
+{% block title %}Harita - Yağ Kaçağı Tespit Sistemi{% endblock %}
+
+{% block head %}
+<style>
+    #harita-konteyner {
+        height: calc(100vh - 150px);
+        min-height: 500px;
+        position: relative;
+    }
+    
+    .harita-kontrol-paneli {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: white;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        max-width: 300px;
+    }
+    
+    .tarama-alanı {
+        background-color: rgba(0, 123, 255, 0.2);
+        border: 2px solid #007bff;
+    }
+    
+    .drone-ikon {
+        font-size: 24px;
+        color: #007bff;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .tespit-ikon {
+        font-size: 20px;
+        color: #dc3545;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .gemi-ikon {
+        font-size: 20px;
+        color: #28a745;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0"><i class="fas fa-map-marked-alt"></i> Canlı Harita</h5>
+                    </div>
+                    <div class="col-auto">
+                        <div class="btn-group">
+                            <button class="btn btn-light btn-sm" id="btn-tam-ekran">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="btn btn-light btn-sm" id="btn-yenile">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="harita-konteyner">
+                    <!-- Harita buraya yüklenecek -->
+                    
+                    <!-- Harita Kontrol Paneli -->
+                    <div class="harita-kontrol-paneli">
+                        <h6 class="mb-3">Harita Kontrolleri</h6>
+                        
+                        <!-- Katmanlar -->
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-layers"></i> Katmanlar</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="katman-drone" checked>
+                                <label class="form-check-label" for="katman-drone">
+                                    Drone Konumu
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="katman-tespitler" checked>
+                                <label class="form-check-label" for="katman-tespitler">
+                                    Yağ Kaçağı Tespitleri
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="katman-gemiler" checked>
+                                <label class="form-check-label" for="katman-gemiler">
+                                    Gemi Tespitleri
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Tarama Kontrolü -->
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-draw-polygon"></i> Tarama Alanı</label>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary btn-sm" id="btn-alan-seç">
+                                    <i class="fas fa-vector-square"></i> Alan Seç
+                                </button>
+                                <button class="btn btn-secondary btn-sm" id="btn-alan-temizle" disabled>
+                                    <i class="fas fa-eraser"></i> Temizle
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Tarama Parametreleri -->
+                        <div id="tarama-parametreleri" class="d-none">
+                            <div class="mb-3">
+                                <label for="tarama-yükseklik" class="form-label">Tarama Yüksekliği (m)</label>
+                                <input type="number" class="form-control form-control-sm" id="tarama-yükseklik" value="30">
+                            </div>
+                            <div class="mb-3">
+                                <label for="tarama-mesafe" class="form-label">Hat Mesafesi (m)</label>
+                                <input type="number" class="form-control form-control-sm" id="tarama-mesafe" value="50">
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-success" id="btn-tarama-başlat" disabled>
+                                    <i class="fas fa-play"></i> Taramayı Başlat
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Tarama Durumu -->
+                        <div id="tarama-durum" class="mt-3 d-none">
+                            <div class="progress">
+                                <div id="tarama-ilerleme" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <div class="d-grid mt-2">
+                                <button class="btn btn-danger btn-sm" id="btn-tarama-iptal">
+                                    <i class="fas fa-stop"></i> Taramayı İptal Et
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tarama Onay Modal -->
+<div class="modal fade" id="tarama-onay-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tarama Başlatılsın mı?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Seçilen alan için tarama başlatılacak. Drone belirlenen parametrelerle tarama yapacak.</p>
+                <div class="alert alert-info">
+                    <strong>Tarama Bilgileri:</strong>
+                    <ul class="mb-0">
+                        <li>Alan Boyutu: <span id="alan-boyutu">0</span> m²</li>
+                        <li>Tahmini Süre: <span id="tahmini-süre">0</span> dakika</li>
+                        <li>Hat Sayısı: <span id="hat-sayısı">0</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" id="btn-tarama-onayla">
+                    <i class="fas fa-check"></i> Taramayı Başlat
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Harita değişkenleri
+let harita = null;
+let droneKatmanı = null;
+let tespitKatmanı = null;
+let gemiKatmanı = null;
+let taramaAlanı = null;
+let seçimModu = false;
+let seçilenNoktalar = [];
+
+// Haritayı başlat
+function haritayıBaşlat() {
+    // Haritayı oluştur (İstanbul merkezi)
+    harita = L.map('harita-konteyner').setView([41.0082, 28.9784], 13);
+    
+    // OpenStreetMap katmanını ekle
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(harita);
+    
+    // Katmanları oluştur
+    droneKatmanı = L.layerGroup().addTo(harita);
+    tespitKatmanı = L.layerGroup().addTo(harita);
+    gemiKatmanı = L.layerGroup().addTo(harita);
+    
+    // Harita tıklama olayını dinle
+    harita.on('click', function(e) {
+        if (seçimModu) {
+            alanSeçimNoktasıEkle(e.latlng);
+        }
+    });
+}
+
+// Drone konumunu güncelle
+function droneKonumunuGüncelle(konum) {
+    droneKatmanı.clearLayers();
+    
+    if (konum) {
+        // Drone ikonu oluştur
+        const droneIcon = L.divIcon({
+            html: '<i class="fas fa-drone drone-ikon"></i>',
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+            className: 'drone-marker'
+        });
+        
+        // Drone markeri ekle
+        L.marker([konum.enlem, konum.boylam], {
+            icon: droneIcon,
+            rotationAngle: konum.yön || 0
+        }).addTo(droneKatmanı);
+    }
+}
+
+// Tespit ekle
+function tespitEkle(tespit) {
+    // Tespit ikonu oluştur
+    const tespitIcon = L.divIcon({
+        html: '<i class="fas fa-oil-can tespit-ikon"></i>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+        className: 'tespit-marker'
+    });
+    
+    // Tespit markeri ekle
+    const marker = L.marker([tespit.konum.enlem, tespit.konum.boylam], {
+        icon: tespitIcon
+    }).addTo(tespitKatmanı);
+    
+    // Popup ekle
+    marker.bindPopup(`
+        <strong>Tespit #${tespit.id}</strong><br>
+        Tarih: ${tespit.tarih}<br>
+        Yağ Kaçağı Sayısı: ${tespit.yağ_kaçağı_sayısı}<br>
+        <button class="btn btn-sm btn-primary mt-2" onclick="tespitDetayGöster(${tespit.id})">
+            <i class="fas fa-search-plus"></i> Detaylar
+        </button>
+    `);
+}
+
+// Gemi ekle
+function gemiEkle(gemi) {
+    // Gemi ikonu oluştur
+    const gemiIcon = L.divIcon({
+        html: '<i class="fas fa-ship gemi-ikon"></i>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+        className: 'gemi-marker'
+    });
+    
+    // Gemi markeri ekle
+    const marker = L.marker([gemi.konum.enlem, gemi.konum.boylam], {
+        icon: gemiIcon
+    }).addTo(gemiKatmanı);
+    
+    // Popup ekle
+    marker.bindPopup(`
+        <strong>Gemi Tespiti</strong><br>
+        Tarih: ${gemi.tarih}<br>
+        Boyut: ${gemi.boyut} m²
+    `);
+}
+
+// Alan seçim noktası ekle
+function alanSeçimNoktasıEkle(latlng) {
+    seçilenNoktalar.push(latlng);
+    
+    // İki nokta seçildiyse dikdörtgen çiz
+    if (seçilenNoktalar.length === 2) {
+        const köşeler = [
+            seçilenNoktalar[0],
+            L.latLng(seçilenNoktalar[0].lat, seçilenNoktalar[1].lng),
+            seçilenNoktalar[1],
+            L.latLng(seçilenNoktalar[1].lat, seçilenNoktalar[0].lng)
+        ];
+        
+        // Önceki alanı temizle
+        if (taramaAlanı) {
+            harita.removeLayer(taramaAlanı);
+        }
+        
+        // Yeni alanı çiz
+        taramaAlanı = L.polygon(köşeler, {
+            color: '#007bff',
+            fillColor: '#007bff',
+            fillOpacity: 0.2,
+            weight: 2
+        }).addTo(harita);
+        
+        // Seçim modunu kapat
+        seçimModu = false;
+        seçilenNoktalar = [];
+        
+        // Butonları güncelle
+        $('#btn-alan-seç').removeClass('btn-danger').addClass('btn-primary').html('<i class="fas fa-vector-square"></i> Alan Seç');
+        $('#btn-alan-temizle').prop('disabled', false);
+        $('#btn-tarama-başlat').prop('disabled', false);
+        
+        // Tarama parametrelerini göster
+        $('#tarama-parametreleri').removeClass('d-none');
+        
+        // Alan bilgilerini hesapla ve göster
+        alanBilgileriniGüncelle();
+    }
+}
+
+// Alan bilgilerini güncelle
+function alanBilgileriniGüncelle() {
+    if (taramaAlanı) {
+        // Alan boyutunu hesapla
+        const bounds = taramaAlanı.getBounds();
+        const kuzeybatı = bounds.getNorthWest();
+        const güneydoğu = bounds.getSouthEast();
+        
+        const genişlik = kuzeybatı.distanceTo(L.latLng(kuzeybatı.lat, güneydoğu.lng));
+        const yükseklik = kuzeybatı.distanceTo(L.latLng(güneydoğu.lat, kuzeybatı.lng));
+        
+        const alan = (genişlik * yükseklik).toFixed(0);
+        const hatMesafesi = parseInt($('#tarama-mesafe').val());
+        const hatSayısı = Math.ceil(genişlik / hatMesafesi);
+        const tahminiSüre = Math.ceil((genişlik * hatSayısı) / (10 * 60)); // 10 m/s hızla
+        
+        $('#alan-boyutu').text(alan);
+        $('#hat-sayısı').text(hatSayısı);
+        $('#tahmini-süre').text(tahminiSüre);
+    }
+}
+
+// Sayfa yüklendiğinde
+$(document).ready(function() {
+    // Haritayı başlat
+    haritayıBaşlat();
+    
+    // Katman kontrolleri
+    $('#katman-drone').change(function() {
+        if ($(this).is(':checked')) {
+            harita.addLayer(droneKatmanı);
+        } else {
+            harita.removeLayer(droneKatmanı);
+        }
+    });
+    
+    $('#katman-tespitler').change(function() {
+        if ($(this).is(':checked')) {
+            harita.addLayer(tespitKatmanı);
+        } else {
+            harita.removeLayer(tespitKatmanı);
+        }
+    });
+    
+    $('#katman-gemiler').change(function() {
+        if ($(this).is(':checked')) {
+            harita.addLayer(gemiKatmanı);
+        } else {
+            harita.removeLayer(gemiKatmanı);
+        }
+    });
+    
+    // Alan seçim butonu
+    $('#btn-alan-seç').click(function() {
+        seçimModu = !seçimModu;
+        
+        if (seçimModu) {
+            $(this).removeClass('btn-primary').addClass('btn-danger')
+                   .html('<i class="fas fa-times"></i> Seçimi İptal Et');
+            seçilenNoktalar = [];
+        } else {
+            $(this).removeClass('btn-danger').addClass('btn-primary')
+                   .html('<i class="fas fa-vector-square"></i> Alan Seç');
+        }
+    });
+    
+    // Alan temizleme butonu
+    $('#btn-alan-temizle').click(function() {
+        if (taramaAlanı) {
+            harita.removeLayer(taramaAlanı);
+            taramaAlanı = null;
+        }
+        
+        seçilenNoktalar = [];
+        seçimModu = false;
+        
+        $('#btn-alan-seç').removeClass('btn-danger').addClass('btn-primary')
+                         .html('<i class="fas fa-vector-square"></i> Alan Seç');
+        $(this).prop('disabled', true);
+        $('#btn-tarama-başlat').prop('disabled', true);
+        $('#tarama-parametreleri').addClass('d-none');
+    });
+    
+    // Tarama parametreleri değiştiğinde
+    $('#tarama-yükseklik, #tarama-mesafe').change(function() {
+        alanBilgileriniGüncelle();
+    });
+    
+    // Tarama başlatma butonu
+    $('#btn-tarama-başlat').click(function() {
+        $('#tarama-onay-modal').modal('show');
+    });
+    
+    // Tarama onaylama
+    $('#btn-tarama-onayla').click(function() {
+        const bounds = taramaAlanı.getBounds();
+        const kuzeyBatı = bounds.getNorthWest();
+        const güneyDoğu = bounds.getSouthEast();
+        
+        // Tarama isteğini gönder
+        YağKaçağıUygulaması.taramaBAŞLAT(
+            [kuzeyBatı.lat, kuzeyBatı.lng],
+            [güneyDoğu.lat, güneyDoğu.lng],
+            parseInt($('#tarama-mesafe').val()),
+            parseInt($('#tarama-yükseklik').val())
+        );
+        
+        // Modal'ı kapat
+        $('#tarama-onay-modal').modal('hide');
+        
+        // Tarama durumunu göster
+        $('#tarama-durum').removeClass('d-none');
+        $('#btn-tarama-başlat').prop('disabled', true);
+    });
+    
+    // Tarama iptal butonu
+    $('#btn-tarama-iptal').click(function() {
+        YağKaçağıUygulaması.taramaİptalEt();
+    });
+    
+    // Tam ekran butonu
+    $('#btn-tam-ekran').click(function() {
+        const konteyner = document.getElementById('harita-konteyner');
+        
+        if (!document.fullscreenElement) {
+            if (konteyner.requestFullscreen) {
+                konteyner.requestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    });
+    
+    // Yenile butonu
+    $('#btn-yenile').click(function() {
+        // Mevcut konumu merkeze al
+        if (YağKaçağıUygulaması.drone.konum) {
+            harita.setView([
+                YağKaçağıUygulaması.drone.konum.enlem,
+                YağKaçağıUygulaması.drone.konum.boylam
+            ]);
+        }
+    });
+});
+
+// Socket.IO olayları
+YağKaçağıUygulaması.socket.on('drone_konum', function(konum) {
+    droneKonumunuGüncelle(konum);
+});
+
+YağKaçağıUygulaması.socket.on('yeni_tespit', function(tespit) {
+    tespitEkle(tespit);
+});
+
+YağKaçağıUygulaması.socket.on('yeni_gemi', function(gemi) {
+    gemiEkle(gemi);
+});
+</script>
+{% endblock %} 

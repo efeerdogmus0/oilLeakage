@@ -1,0 +1,564 @@
+/**
+ * Yağ Kaçağı Tespit Sistemi Ana CSS Dosyası
+ * Bu dosya, tüm sayfalarda ortak kullanılan stil tanımlarını içerir.
+ */
+
+/* Genel stiller */
+body {
+    padding-bottom: 60px; /* Footer için alt boşluk */
+}
+
+/* Harita stili */
+#harita {
+    height: 500px;
+    width: 100%;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+}
+
+@media (max-width: 768px) {
+    #harita {
+        height: 350px;
+    }
+}
+
+/* Durum paneli */
+.durum-panel {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.durum-panel .card {
+    margin-bottom: 10px;
+}
+
+.durum-panel .card-body {
+    padding: 10px;
+}
+
+/* Kılavuz panel */
+.kılavuz-panel {
+    background-color: #e9ecef;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-left: 4px solid #6c757d;
+}
+
+/* Tespit kartları */
+.tespit-kart {
+    margin-bottom: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.tespit-kart:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tespit-kart .kart-başlık {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f1f3f5;
+    border-radius: 5px 5px 0 0;
+}
+
+.tespit-kart .kart-içerik {
+    padding: 15px;
+}
+
+.tespit-kart .kart-alt {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 0 0 5px 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Tespit sonuçları için tooltip */
+.tespit-tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* Alarm kutusu */
+.alarm-kutusu {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    padding: 10px 15px;
+    color: #721c24;
+    margin-bottom: 15px;
+    animation: alarm-flash 1.5s infinite;
+}
+
+@keyframes alarm-flash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* İlerleme çubuğu */
+.ilerleme-çubuğu {
+    height: 20px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.ilerleme-çubuğu .ilerleme {
+    height: 100%;
+    background-color: #007bff;
+    border-radius: 5px;
+    transition: width 0.5s;
+}
+
+/* Drone yörünge çizgisi */
+.drone-yörünge {
+    stroke: #007bff;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 10, 5;
+    animation: yörünge-hareket 1s linear infinite;
+}
+
+@keyframes yörünge-hareket {
+    to { stroke-dashoffset: -15; }
+}
+
+/* Araç çubuğu */
+.araç-çubuğu {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background-color: white;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.araç-çubuğu button {
+    margin: 0 2px;
+}
+
+@media (max-width: 768px) {
+    .araç-çubuğu {
+        bottom: 10px;
+        top: auto;
+        width: calc(100% - 20px);
+        display: flex;
+        justify-content: center;
+    }
+}
+
+/* Tespit rozeti */
+.tespit-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+.tespit-badge.gemi {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.tespit-badge.yağ {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.tespit-badge.diğer {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+/* Tablo stileri */
+.tablo-tarama {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tablo-tarama th {
+    background-color: #f8f9fa;
+    padding: 10px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.tablo-tarama td {
+    padding: 10px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.tablo-tarama tr:hover {
+    background-color: #f1f3f5;
+}
+
+/* Bildirim */
+.bildirim {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    border-radius: 5px;
+    z-index: 9999;
+    transition: opacity 0.3s, transform 0.3s;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+    max-width: 300px;
+}
+
+.bildirim.göster {
+    animation: bildirim-göster 0.3s forwards;
+}
+
+.bildirim.gizle {
+    animation: bildirim-gizle 0.3s forwards;
+}
+
+@keyframes bildirim-göster {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes bildirim-gizle {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(20px); opacity: 0; }
+}
+
+/* Form kontrolleri */
+.form-kontrol-özel {
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    padding: 8px 12px;
+    transition: border-color 0.3s;
+}
+
+.form-kontrol-özel:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Buton grupları */
+.buton-grup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+/* Ayarlar sayfası için özel stiller */
+.ayarlar-sekme-içerik {
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-top: 0;
+}
+
+.ayarlar-form-grup {
+    margin-bottom: 15px;
+}
+
+.ayarlar-etiket {
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.ayarlar-açıklama {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+/* Slider stilini ayarla */
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    background: #e9ecef;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+}
+
+/* Harita katman kontrol */
+.harita-katman-kontrol {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.harita-katman-kontrol h6 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 14px;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 5px;
+}
+
+.harita-katman-kontrol .form-check {
+    margin-bottom: 5px;
+}
+
+/* Yükleniyor animasyonu */
+.yükleniyor {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0, 123, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #007bff;
+    animation: döndür 1s ease-in-out infinite;
+}
+
+@keyframes döndür {
+    to { transform: rotate(360deg); }
+}
+
+/* İkon butonları */
+.ikon-buton {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.ikon-buton:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Duyarlı görüntüleme */
+@media (max-width: 576px) {
+    .gizli-xs {
+        display: none;
+    }
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+    .gizli-sm {
+        display: none;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 992px) {
+    .gizli-md {
+        display: none;
+    }
+}
+
+@media (min-width: 993px) {
+    .gizli-lg {
+        display: none;
+    }
+}
+
+/* Diğer yardımcı sınıflar */
+.metin-kırp {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gölge-hafif {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.gölge-orta {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.gölge-koyu {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.köşe-yuvarlak-büyük {
+    border-radius: 10px;
+}
+
+.köşe-yuvarlak-küçük {
+    border-radius: 3px;
+}
+
+.köşe-yuvarlak-tam {
+    border-radius: 50%;
+}
+
+.geçiş-tümü {
+    transition: all 0.3s;
+}
+
+.geçiş-transform {
+    transition: transform 0.3s;
+}
+
+.geçiş-opacity {
+    transition: opacity 0.3s;
+}
+
+.dönüş-90 {
+    transform: rotate(90deg);
+}
+
+.dönüş-180 {
+    transform: rotate(180deg);
+}
+
+.dönüş-270 {
+    transform: rotate(270deg);
+}
+
+/* Harita Stilleri */
+#harita-konteyner {
+    height: calc(100vh - 150px);
+    min-height: 500px;
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.harita-kontrol-paneli {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-width: 300px;
+}
+
+.tarama-alanı {
+    background-color: rgba(0, 123, 255, 0.2);
+    border: 2px solid #007bff;
+}
+
+/* İkonlar */
+.drone-ikon {
+    font-size: 24px;
+    color: #007bff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.tespit-ikon {
+    font-size: 20px;
+    color: #dc3545;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.gemi-ikon {
+    font-size: 20px;
+    color: #28a745;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Popup Stilleri */
+.leaflet-popup-content {
+    min-width: 200px;
+}
+
+.leaflet-popup-content button {
+    margin-top: 8px;
+    width: 100%;
+}
+
+/* Kontrol Paneli Bileşenleri */
+.harita-kontrol-paneli .form-label {
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.harita-kontrol-paneli .form-check {
+    margin-bottom: 5px;
+}
+
+.harita-kontrol-paneli .btn-group {
+    width: 100%;
+}
+
+.harita-kontrol-paneli .progress {
+    height: 10px;
+}
+
+/* Mobil Görünüm */
+@media (max-width: 768px) {
+    #harita-konteyner {
+        height: calc(100vh - 120px);
+    }
+    
+    .harita-kontrol-paneli {
+        max-width: calc(100% - 20px);
+        left: 10px;
+        right: 10px;
+    }
+}
+
+/* Animasyonlar */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.drone-ikon:hover {
+    animation: pulse 1s infinite;
+}
+
+.tespit-ikon:hover,
+.gemi-ikon:hover {
+    transform: scale(1.2);
+} 

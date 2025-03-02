@@ -1,0 +1,412 @@
+{% extends "layout.html" %}
+
+{% block title %}Tespitler - Yağ Kaçağı Tespit Sistemi{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h3><i class="fas fa-search"></i> Yağ Kaçağı Tespitleri</h3>
+        <p class="text-muted">Drone tarafından tespit edilen yağ kaçaklarının listesi.</p>
+    </div>
+    <div class="col-md-6">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="arama-kutusu" placeholder="Tespit ara...">
+            <button class="btn btn-primary" type="button" id="btn-ara">
+                <i class="fas fa-search"></i> Ara
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0"><i class="fas fa-filter"></i> Filtreler</h5>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#filtreler">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="collapse" id="filtreler">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="tarih-başlangıç" class="form-label">Başlangıç Tarihi</label>
+                            <input type="date" class="form-control" id="tarih-başlangıç">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="tarih-bitiş" class="form-label">Bitiş Tarihi</label>
+                            <input type="date" class="form-control" id="tarih-bitiş">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="filtre-gemi" class="form-label">Gemi Durumu</label>
+                            <select class="form-select" id="filtre-gemi">
+                                <option value="">Tümü</option>
+                                <option value="var">Gemi Var</option>
+                                <option value="yok">Gemi Yok</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="filtre-sırala" class="form-label">Sıralama</label>
+                            <select class="form-select" id="filtre-sırala">
+                                <option value="tarih-yeni">Tarih (Yeni-Eski)</option>
+                                <option value="tarih-eski">Tarih (Eski-Yeni)</option>
+                                <option value="alan-büyük">Alan (Büyük-Küçük)</option>
+                                <option value="alan-küçük">Alan (Küçük-Büyük)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-secondary me-2" id="btn-filtre-temizle">
+                            <i class="fas fa-eraser"></i> Temizle
+                        </button>
+                        <button class="btn btn-primary" id="btn-filtre-uygula">
+                            <i class="fas fa-check"></i> Uygula
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tespit Listesi -->
+<div class="row" id="tespit-liste-container">
+    {% if tespitler %}
+        {% for tespit in tespitler %}
+        <div class="col-md-4 mb-4 tespit-kart-container">
+            <div class="card tespit-kart h-100">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Tespit #{{ tespit.id }}</h5>
+                    <span class="badge bg-light text-dark">{{ tespit.tarih }}</span>
+                </div>
+                {% if tespit.görüntü_yolu %}
+                <img src="{{ tespit.görüntü_yolu }}" class="card-img-top tespit-görüntü" alt="Tespit görüntüsü">
+                {% elif tespit.görüntü_base64 %}
+                <img src="data:image/jpeg;base64,{{ tespit.görüntü_base64 }}" class="card-img-top tespit-görüntü" alt="Tespit görüntüsü">
+                {% else %}
+                <div class="card-img-top tespit-görüntü d-flex justify-content-center align-items-center bg-light">
+                    <i class="fas fa-image fa-4x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong><i class="fas fa-map-marker-alt text-danger"></i> Konum:</strong>
+                        <p class="mb-0">
+                            {{ tespit.konum.enlem|round(6) }}, {{ tespit.konum.boylam|round(6) }}
+                            <button class="btn btn-sm btn-outline-primary float-end" 
+                                    onclick="haritadaGöster({{ tespit.konum.enlem }}, {{ tespit.konum.boylam }})">
+                                <i class="fas fa-map"></i>
+                            </button>
+                        </p>
+                    </div>
+                    <div class="mb-3">
+                        <strong><i class="fas fa-info-circle text-info"></i> Tespit Bilgileri:</strong>
+                        <ul class="list-group list-group-flush mt-2">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Yağ Kaçağı Sayısı
+                                <span class="badge bg-primary rounded-pill">{{ tespit.yağ_kaçağı_sayısı }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Gemi Var mı?
+                                <span class="badge {% if tespit.gemi_var %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">
+                                    {% if tespit.gemi_var %}Evet{% else %}Hayır{% endif %}
+                                </span>
+                            </li>
+                            {% if tespit.gemi_var %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Gemi Sayısı
+                                <span class="badge bg-info rounded-pill">{{ tespit.gemi_sayısı }}</span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary w-100" onclick="tespitDetayGöster({{ tespit.id }})">
+                        <i class="fas fa-search-plus"></i> Detayları Görüntüle
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Henüz hiç tespit kaydedilmemiş.
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Sayfalama -->
+<div class="row mt-3 mb-5">
+    <div class="col-md-12">
+        <nav aria-label="Sayfalama">
+            <ul class="pagination justify-content-center" id="sayfalama">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Önceki</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Sonraki</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Tespit Detay Modal -->
+<div class="modal fade" id="tespit-detay-modal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-search-plus"></i> Tespit Detayları</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body" id="tespit-detay-içerik">
+                <!-- Detaylar buraya dinamik olarak yüklenecek -->
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Yükleniyor...</span>
+                    </div>
+                    <p class="mt-2">Tespit detayları yükleniyor...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-primary" id="btn-rapor-indir">
+                    <i class="fas fa-file-download"></i> Rapor İndir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Harita Modal -->
+<div class="modal fade" id="harita-modal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-map"></i> Tespit Konumu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <div id="tespit-haritası" style="height: 400px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <a href="/harita" class="btn btn-primary">
+                    <i class="fas fa-map-marked-alt"></i> Ana Haritada Görüntüle
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Tespit detayını göster
+    function tespitDetayGöster(tespitId) {
+        // Modal'ı göster
+        const modal = new bootstrap.Modal(document.getElementById('tespit-detay-modal'));
+        modal.show();
+        
+        // Tespit detaylarını yükle
+        $('#tespit-detay-içerik').html('<div class="text-center"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Tespit detayları yükleniyor...</p></div>');
+        
+        // API'den tespit detaylarını al
+        $.ajax({
+            url: `/api/tespitler/${tespitId}`,
+            type: 'GET',
+            success: function(tespit) {
+                // Tespit detaylarını göster
+                let içerik = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">Tespit Bilgileri</h5>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-striped">
+                                        <tr>
+                                            <th>Tespit No:</th>
+                                            <td>#${tespit.id}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Tarih:</th>
+                                            <td>${tespit.tarih}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Konum:</th>
+                                            <td>${tespit.konum.enlem.toFixed(6)}, ${tespit.konum.boylam.toFixed(6)}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Yağ Kaçağı Sayısı:</th>
+                                            <td>${tespit.yağ_kaçağı_sayısı}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Gemi Var mı?:</th>
+                                            <td>${tespit.gemi_var ? 'Evet' : 'Hayır'}</td>
+                                        </tr>
+                                        ${tespit.gemi_var ? `<tr><th>Gemi Sayısı:</th><td>${tespit.gemi_sayısı}</td></tr>` : ''}
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">Tespit Görüntüsü</h5>
+                                </div>
+                                <div class="card-body text-center">
+                `;
+                
+                // Görüntü varsa ekle
+                if (tespit.görüntü_base64) {
+                    içerik += `<img src="data:image/jpeg;base64,${tespit.görüntü_base64}" class="img-fluid" alt="Tespit görüntüsü">`;
+                } else if (tespit.görüntü_yolu) {
+                    içerik += `<img src="${tespit.görüntü_yolu}" class="img-fluid" alt="Tespit görüntüsü">`;
+                } else {
+                    içerik += `<div class="text-center p-5 bg-light"><i class="fas fa-image fa-4x text-muted"></i><p class="mt-2">Görüntü bulunamadı</p></div>`;
+                }
+                
+                içerik += `
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">Harita</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div id="tespit-detay-harita" style="height: 250px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // İçeriği modal'a yükle
+                $('#tespit-detay-içerik').html(içerik);
+                
+                // Detay haritasını başlat
+                setTimeout(function() {
+                    const detayHarita = L.map('tespit-detay-harita').setView([tespit.konum.enlem, tespit.konum.boylam], 15);
+                    
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(detayHarita);
+                    
+                    // Tespit ikonu oluştur
+                    const tespitIcon = L.divIcon({
+                        html: '<i class="fas fa-oil-can text-danger" style="font-size: 20px;"></i>',
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 10],
+                        className: 'tespit-icon'
+                    });
+                    
+                    // Markeri ekle
+                    L.marker([tespit.konum.enlem, tespit.konum.boylam], {
+                        icon: tespitIcon
+                    }).addTo(detayHarita);
+                    
+                    // Çemberi ekle
+                    L.circle([tespit.konum.enlem, tespit.konum.boylam], {
+                        color: 'red',
+                        fillColor: '#f03',
+                        fillOpacity: 0.2,
+                        radius: 300
+                    }).addTo(detayHarita);
+                }, 500);
+            },
+            error: function() {
+                $('#tespit-detay-içerik').html('<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Tespit detayları yüklenirken bir hata oluştu!</div>');
+            }
+        });
+    }
+    
+    // Haritada göster
+    function haritadaGöster(enlem, boylam) {
+        // Modal'ı göster
+        const modal = new bootstrap.Modal(document.getElementById('harita-modal'));
+        modal.show();
+        
+        // Modal gösterildikten sonra haritayı başlat
+        setTimeout(function() {
+            const harita = L.map('tespit-haritası').setView([enlem, boylam], 15);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(harita);
+            
+            // Tespit ikonu oluştur
+            const tespitIcon = L.divIcon({
+                html: '<i class="fas fa-oil-can text-danger" style="font-size: 20px;"></i>',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10],
+                className: 'tespit-icon'
+            });
+            
+            // Markeri ekle
+            const marker = L.marker([enlem, boylam], {
+                icon: tespitIcon
+            }).addTo(harita);
+            
+            // Popup ekle
+            marker.bindPopup(`<strong>Tespit Konumu</strong><br>Enlem: ${enlem.toFixed(6)}<br>Boylam: ${boylam.toFixed(6)}`).openPopup();
+            
+            // Çemberi ekle
+            L.circle([enlem, boylam], {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.2,
+                radius: 300
+            }).addTo(harita);
+        }, 500);
+    }
+    
+    // Sayfa yüklendiğinde
+    $(document).ready(function() {
+        // Filtre temizle butonu
+        $('#btn-filtre-temizle').click(function() {
+            $('#tarih-başlangıç').val('');
+            $('#tarih-bitiş').val('');
+            $('#filtre-gemi').val('');
+            $('#filtre-sırala').val('tarih-yeni');
+            $('#arama-kutusu').val('');
+        });
+        
+        // Filtre uygula butonu
+        $('#btn-filtre-uygula').click(function() {
+            // Burada AJAX ile filtreleme yapılacak
+            alert('Filtreler uygulandı!');
+        });
+        
+        // Arama butonu
+        $('#btn-ara').click(function() {
+            const aramaMetni = $('#arama-kutusu').val();
+            // Burada AJAX ile arama yapılacak
+            alert(`"${aramaMetni}" için arama yapılıyor...`);
+        });
+        
+        // Rapor indir butonu
+        $('#btn-rapor-indir').click(function() {
+            alert('Rapor indirme işlemi başlatıldı!');
+        });
+    });
+</script>
+{% endblock %} 
