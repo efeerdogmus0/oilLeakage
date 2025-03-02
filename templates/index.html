@@ -1,30 +1,30 @@
 {% extends "layout.html" %}
 
-{% block title %}Ana Sayfa - Yağ Kaçağı Tespit Sistemi{% endblock %}
+{% block title %}Home - Oil Leak Detection System{% endblock %}
 
 {% block content %}
 <div class="row">
-    <!-- Durum Paneli -->
+    <!-- Status Panel -->
     <div class="col-md-4">
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Drone Durumu</h5>
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Drone Status</h5>
             </div>
             <div class="card-body">
-                <div id="drone-durum">
+                <div id="drone-status">
                     <div class="alert alert-secondary" role="alert">
-                        Drone durumu yükleniyor...
+                        Loading drone status...
                     </div>
                 </div>
                 <div class="row mt-3">
                     <div class="col-sm-6 mb-2">
-                        <button id="btn-bağlan" class="btn btn-success w-100">
-                            <i class="fas fa-plug"></i> Bağlan
+                        <button id="btn-connect" class="btn btn-success w-100">
+                            <i class="fas fa-plug"></i> Connect
                         </button>
                     </div>
                     <div class="col-sm-6 mb-2">
-                        <button id="btn-bağlantıyı-kes" class="btn btn-danger w-100" disabled>
-                            <i class="fas fa-unlink"></i> Bağlantıyı Kes
+                        <button id="btn-disconnect" class="btn btn-danger w-100" disabled>
+                            <i class="fas fa-unlink"></i> Disconnect
                         </button>
                     </div>
                 </div>
@@ -33,52 +33,52 @@
 
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-sliders-h"></i> Drone Parametreleri</h5>
+                <h5 class="mb-0"><i class="fas fa-sliders-h"></i> Drone Parameters</h5>
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <label for="drone-yükseklik" class="form-label">Uçuş Yüksekliği (metre)</label>
+                    <label for="drone-altitude" class="form-label">Flight Altitude (meters)</label>
                     <div class="input-group">
-                        <input type="number" class="form-control" id="drone-yükseklik" value="30" min="5" max="120">
-                        <button class="btn btn-outline-primary" id="btn-yükseklik-ayarla">Ayarla</button>
+                        <input type="number" class="form-control" id="drone-altitude" value="30" min="5" max="120">
+                        <button class="btn btn-outline-primary" id="btn-set-altitude">Set</button>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="drone-hız" class="form-label">Uçuş Hızı (m/s)</label>
+                    <label for="drone-speed" class="form-label">Flight Speed (m/s)</label>
                     <div class="input-group">
-                        <input type="number" class="form-control" id="drone-hız" value="5" min="1" max="15">
-                        <button class="btn btn-outline-primary" id="btn-hız-ayarla">Ayarla</button>
+                        <input type="number" class="form-control" id="drone-speed" value="5" min="1" max="15">
+                        <button class="btn btn-outline-primary" id="btn-set-speed">Set</button>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="tarama-mesafe" class="form-label">Tarama Çizgileri Arası Mesafe (metre)</label>
-                    <input type="number" class="form-control" id="tarama-mesafe" value="50" min="10" max="200">
+                    <label for="scan-distance" class="form-label">Distance Between Scan Lines (meters)</label>
+                    <input type="number" class="form-control" id="scan-distance" value="50" min="10" max="200">
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Kontrol Paneli -->
+    <!-- Control Panel -->
     <div class="col-md-8">
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-gamepad"></i> Drone Kontrolü</h5>
+                <h5 class="mb-0"><i class="fas fa-gamepad"></i> Drone Control</h5>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-6 col-md-3 mb-2">
                         <button id="btn-arm" class="btn btn-warning w-100" disabled>
-                            <i class="fas fa-power-off"></i> Arm Et
+                            <i class="fas fa-power-off"></i> Arm
                         </button>
                     </div>
                     <div class="col-6 col-md-3 mb-2">
-                        <button id="btn-kalk" class="btn btn-success w-100" disabled>
-                            <i class="fas fa-arrow-up"></i> Kalkış
+                        <button id="btn-takeoff" class="btn btn-success w-100" disabled>
+                            <i class="fas fa-arrow-up"></i> Takeoff
                         </button>
                     </div>
                     <div class="col-6 col-md-3 mb-2">
-                        <button id="btn-iniş" class="btn btn-info w-100" disabled>
-                            <i class="fas fa-arrow-down"></i> İniş
+                        <button id="btn-land" class="btn btn-info w-100" disabled>
+                            <i class="fas fa-arrow-down"></i> Land
                         </button>
                     </div>
                     <div class="col-6 col-md-3 mb-2">
@@ -88,20 +88,20 @@
                     </div>
                 </div>
                 <hr>
-                <h6><i class="fas fa-map-marker-alt"></i> Manuel Konum İşlemleri</h6>
+                <h6><i class="fas fa-map-marker-alt"></i> Manual Location Control</h6>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="hedef-enlem" class="form-label">Hedef Enlem</label>
-                        <input type="text" class="form-control" id="hedef-enlem" placeholder="Örn: 41.0082">
+                        <label for="target-latitude" class="form-label">Target Latitude</label>
+                        <input type="text" class="form-control" id="target-latitude" placeholder="Ex: 41.0082">
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="hedef-boylam" class="form-label">Hedef Boylam</label>
-                        <input type="text" class="form-control" id="hedef-boylam" placeholder="Örn: 28.9784">
+                        <label for="target-longitude" class="form-label">Target Longitude</label>
+                        <input type="text" class="form-control" id="target-longitude" placeholder="Ex: 28.9784">
                     </div>
                 </div>
-                <div class="d-grid">
-                    <button id="btn-konum-git" class="btn btn-primary" disabled>
-                        <i class="fas fa-location-arrow"></i> Konuma Git
+                <div class="mb-3">
+                    <button id="btn-goto-location" class="btn btn-primary" disabled>
+                        <i class="fas fa-location-arrow"></i> Go to Location
                     </button>
                 </div>
             </div>
@@ -109,35 +109,57 @@
 
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-search"></i> Tarama İşlemleri</h5>
+                <h5 class="mb-0"><i class="fas fa-search"></i> Area Scan</h5>
             </div>
             <div class="card-body">
-                <p>Taranacak bölgeyi harita üzerinden seçebilir veya koordinatları manuel olarak girebilirsiniz.</p>
+                <p class="text-muted">Use the map page to select an area for scanning.</p>
                 <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <a href="/harita" class="btn btn-outline-primary w-100">
-                            <i class="fas fa-map"></i> Haritada Seç
-                        </a>
+                    <div class="col-md-6 mb-2">
+                        <button id="btn-scan" class="btn btn-primary w-100" disabled>
+                            <i class="fas fa-th"></i> Start New Scan
+                        </button>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <button id="btn-tarama" class="btn btn-outline-success w-100" disabled>
-                            <i class="fas fa-play"></i> Taramayı Başlat
+                    <div class="col-md-6 mb-2">
+                        <button id="btn-cancel-scan" class="btn btn-warning w-100" disabled>
+                            <i class="fas fa-stop"></i> Cancel Scan
                         </button>
                     </div>
                 </div>
-                <div id="tarama-durum" class="d-none">
-                    <div class="alert alert-info">
-                        <h6><i class="fas fa-spinner fa-spin"></i> Tarama Devam Ediyor</h6>
-                        <div class="progress mt-2">
-                            <div id="tarama-ilerleme" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
-                        </div>
-                        <div class="d-grid mt-2">
-                            <button id="btn-tarama-iptal" class="btn btn-sm btn-danger">
-                                <i class="fas fa-stop"></i> Taramayı İptal Et
-                            </button>
-                        </div>
+                <div id="scan-status" class="mt-3 d-none">
+                    <label class="form-label">Scan Progress</label>
+                    <div class="progress">
+                        <div id="scan-progress" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Connection Modal -->
+<div class="modal fade" id="connection-modal" tabindex="-1" aria-labelledby="connection-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="connection-modal-label">Connect to Drone</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="connection-address" class="form-label">Connection Address</label>
+                        <input type="text" class="form-control" id="connection-address" value="tcp:127.0.0.1:5760">
+                        <div class="form-text">
+                            Examples:<br>
+                            - Simulation: tcp:127.0.0.1:5760<br>
+                            - Real Drone: /dev/ttyUSB0 (Serial) or udp:192.168.1.10:14550 (Network)
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btn-save-connection">Connect</button>
             </div>
         </div>
     </div>
@@ -175,33 +197,6 @@
                         <i class="fas fa-list"></i> Tüm Tespitleri Görüntüle
                     </a>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Bağlantı Ayarları Modal -->
-<div class="modal fade" id="bağlantı-modal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-plug"></i> Drone Bağlantısı</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="bağlantı-adresi" class="form-label">Bağlantı Adresi</label>
-                    <input type="text" class="form-control" id="bağlantı-adresi" value="tcp:127.0.0.1:5760">
-                    <div class="form-text">
-                        SITL: tcp:127.0.0.1:5760<br>
-                        USB: /dev/ttyACM0 (Linux) veya COM3 (Windows)<br>
-                        Telemetri: /dev/ttyUSB0
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                <button type="button" class="btn btn-primary" id="btn-bağlantı-kaydet">Bağlan</button>
             </div>
         </div>
     </div>

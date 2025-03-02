@@ -37,9 +37,20 @@ def detections():
 @app.route('/api/drone/connect', methods=['POST'])
 def drone_connect():
     try:
-        if drone.connect():
+        connection_address = request.json.get('connection_address', None)
+        if drone.connect(connection_address):
             return jsonify({"status": "success"})
         return jsonify({"status": "failed", "error": "Could not connect"})
+    except Exception as e:
+        return jsonify({"status": "failed", "error": str(e)})
+
+# Drone disconnect API
+@app.route('/api/drone/disconnect', methods=['POST'])
+def drone_disconnect():
+    try:
+        if drone.disconnect():
+            return jsonify({"status": "success"})
+        return jsonify({"status": "failed", "error": "Could not disconnect"})
     except Exception as e:
         return jsonify({"status": "failed", "error": str(e)})
 
@@ -81,6 +92,43 @@ def drone_rtl():
         if drone.rtl():
             return jsonify({"status": "success"})
         return jsonify({"status": "failed", "error": "Could not start RTL"})
+    except Exception as e:
+        return jsonify({"status": "failed", "error": str(e)})
+
+# Drone goto location API
+@app.route('/api/drone/goto', methods=['POST'])
+def drone_goto():
+    try:
+        data = request.json
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
+        altitude = data.get('altitude', None)
+        
+        if drone.goto_location(latitude, longitude, altitude):
+            return jsonify({"status": "success"})
+        return jsonify({"status": "failed", "error": "Could not go to location"})
+    except Exception as e:
+        return jsonify({"status": "failed", "error": str(e)})
+
+# Set drone speed API
+@app.route('/api/drone/set_speed', methods=['POST'])
+def set_drone_speed():
+    try:
+        speed = request.json.get('speed')
+        if drone.set_speed(speed):
+            return jsonify({"status": "success"})
+        return jsonify({"status": "failed", "error": "Could not set speed"})
+    except Exception as e:
+        return jsonify({"status": "failed", "error": str(e)})
+
+# Set drone altitude API
+@app.route('/api/drone/set_altitude', methods=['POST'])
+def set_drone_altitude():
+    try:
+        altitude = request.json.get('altitude')
+        if drone.set_altitude(altitude):
+            return jsonify({"status": "success"})
+        return jsonify({"status": "failed", "error": "Could not set altitude"})
     except Exception as e:
         return jsonify({"status": "failed", "error": str(e)})
 
